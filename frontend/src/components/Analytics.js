@@ -371,7 +371,7 @@ const Analytics = () => {
           <CardContent className="space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-sm text-slate-600">Database Response</span>
-              <Badge className="bg-green-100 text-green-800">Fast (< 100ms)</Badge>
+              <Badge className="bg-green-100 text-green-800">Fast (&lt; 100ms)</Badge>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-slate-600">OCR Processing</span>
