@@ -192,7 +192,8 @@ async def login_user(login_data: UserLogin):
         data={"sub": user["username"]}, expires_delta=access_token_expires
     )
     
-    user_data = {k: v for k, v in user.items() if k != "hashed_password"}
+    # Remove MongoDB _id and hashed_password from user data
+    user_data = {k: v for k, v in user.items() if k not in ["_id", "hashed_password"]}
     
     return {
         "access_token": access_token,
