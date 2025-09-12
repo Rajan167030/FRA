@@ -5,14 +5,14 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { AlertCircle, Shield, Trees } from 'lucide-react';
-import { useAuth } from '../App';
+import { authenticate } from '../auth/authentication';
 import { toast } from 'sonner';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { user, login } = useAuth();
+  const user = localStorage.getItem('user');
 
   // Redirect if already logged in
   if (user) {
@@ -23,12 +23,13 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
 
-    const result = await login(username, password);
+    const result = authenticate(username, password);
     
     if (result.success) {
       toast.success('Login successful');
+      window.location.href = '/dashboard';
     } else {
-      toast.error(result.error || 'Login failed');
+      toast.error(result.message || 'Login failed');
     }
     
     setLoading(false);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider } from 'next-themes';
+import axios from 'axios';
 import './App.css';
 import { authenticate, logout as authLogout, getCurrentUser } from './auth/authentication';
 
@@ -15,6 +15,9 @@ import CaseManagement from './components/CaseManagement';
 import Analytics from './components/Analytics';
 import AdminPanel from './components/AdminPanel';
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
+
 // Auth Context
 const AuthContext = React.createContext();
 
@@ -27,33 +30,57 @@ export const useAuth = () => {
 };
 
 const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(getCurrentUser());
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
   const [loading, setLoading] = useState(false);
 
-  const login = async (username, password) => {
-    setLoading(true);
-    try {
-      const result = authenticate(username, password);
-      if (result.success) {
-        setUser(result.user);
-        return { success: true };
-      }
-      return { success: false, error: result.message };
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+    setLoading(false);
+  }, []);
     } catch (error) {
-      console.error('Login failed:', error);
-      return { success: false, error: 'Login failed' };
+      console.error('Failed to fetch user info:', error);
+      logout();
     } finally {
       setLoading(false);
     }
   };
 
+  const login = async (username, password) => {
+    try {
+      const response = await axios.post(`${API}/auth/login`, {
+        username,
+        password
+      });
+      
+      const { access_token, user: userData } = response.data;
+      setToken(access_token);
+      setUser(userData);
+      localStorage.setItem('token', access_token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Login failed:', error);
+      return { 
+        success: false, 
+        error: error.response?.data?.detail || 'Login failed' 
+      };
+    }
+  };
+
   const logout = () => {
-    authLogout();
     setUser(null);
+    setToken(null);
+    localStorage.removeItem('token');
+    delete axios.defaults.headers.common['Authorization'];
   };
 
   const value = {
     user,
+    token,
     login,
     logout,
     loading
@@ -80,12 +107,8 @@ const ProtectedRoute = ({ children }) => {
       </div>
     );
   }
-
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
-
-  return children;
+  
+  return user ? children : <Navigate to="/login" />;
 };
 
 // Main Layout Component
@@ -116,6 +139,25 @@ const MainLayout = ({ children }) => {
 };
 
 function App() {
+  const [initialized, setInitialized] = useState(false);
+
+  useEffect(() => {
+    // Initialize sample data on first load
+    const initializeData = async () => {
+      try {
+        await axios.post(`${API}/init-sample-data`);
+        setInitialized(true);
+      } catch (error) {
+        console.error('Failed to initialize data:', error);
+        setInitialized(true); // Continue anyway
+      }
+    };
+
+    if (!initialized) {
+      initializeData();
+    }
+  }, [initialized]);
+
   return (
     <AuthProvider>
       <Router>
@@ -165,7 +207,7 @@ function App() {
               </ProtectedRoute>
             } />
           </Routes>
-          <Toaster position="top-right" richColors />
+          <Toaster />
         </div>
       </Router>
     </AuthProvider>
