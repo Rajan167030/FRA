@@ -66,7 +66,9 @@ const CaseManagement = () => {
       claim.village_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       claim.claim_number.toLowerCase().includes(searchTerm.toLowerCase());
     
-    return matchesSearch;
+    const matchesStatus = !statusFilter || statusFilter === 'all' || claim.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
   });
 
   const getStatusColor = (status) => {
