@@ -65,8 +65,8 @@ const ForestAtlas = () => {
   const filteredVillages = villages.filter(village => {
     const matchesSearch = village.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          village.village_code.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesState = !stateFilter || village.state === stateFilter;
-    const matchesDistrict = !districtFilter || village.district === districtFilter;
+    const matchesState = !stateFilter || stateFilter === 'all' || village.state === stateFilter;
+    const matchesDistrict = !districtFilter || districtFilter === 'all' || village.district === districtFilter;
     
     return matchesSearch && matchesState && matchesDistrict;
   });
