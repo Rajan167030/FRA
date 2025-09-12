@@ -379,7 +379,7 @@ const Analytics = () => {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-slate-600">AI Analysis</span>
-              <Badge className="bg-green-100 text-green-800">Fast (< 1s)</Badge>
+              <Badge className="bg-green-100 text-green-800">Fast (&lt; 1s)</Badge>
             </div>
           </CardContent>
         </Card>
