@@ -330,21 +330,21 @@ async def initialize_sample_data():
     # Create sample admin user
     admin_exists = await db.users.find_one({"username": "admin"})
     if not admin_exists:
-        admin_user = UserCreate(
-            username="admin",
-            email="admin@fra-connect.gov.in",
-            password="admin123",
-            full_name="System Administrator",
-            role="admin",
-            department="Forest Department",
-            state="All"
-        )
-        hashed_password = get_password_hash(admin_user.password)
-        user_dict = admin_user.dict()
-        del user_dict["password"]
-        user_dict["hashed_password"] = hashed_password
-        user = User(**user_dict)
-        await db.users.insert_one(user.dict())
+        hashed_password = get_password_hash("admin123")
+        user_dict = {
+            "id": str(uuid.uuid4()),
+            "username": "admin",
+            "email": "admin@fra-connect.gov.in",
+            "full_name": "System Administrator",
+            "role": "admin",
+            "department": "Forest Department",
+            "state": "All",
+            "district": "All",
+            "hashed_password": hashed_password,
+            "created_at": datetime.now(timezone.utc),
+            "is_active": True
+        }
+        await db.users.insert_one(user_dict)
     
     # Create sample villages
     villages_count = await db.villages.count_documents({})
