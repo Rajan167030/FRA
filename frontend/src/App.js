@@ -1,53 +1,222 @@
-import { useEffect } from "react";
-import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import axios from 'axios';
+import './App.css';
+
+// Components
+import { Toaster } from './components/ui/sonner';
+import Sidebar from './components/Sidebar';
+import Header from './components/Header';
+import Login from './components/Login';
+import Dashboard from './components/Dashboard';
+import ForestAtlas from './components/ForestAtlas';
+import CaseManagement from './components/CaseManagement';
+import Analytics from './components/Analytics';
+import AdminPanel from './components/AdminPanel';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const Home = () => {
-  const helloWorldApi = async () => {
+// Auth Context
+const AuthContext = React.createContext();
+
+export const useAuth = () => {
+  const context = React.useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+};
+
+const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      fetchUserInfo();
+    } else {
+      setLoading(false);
+    }
+  }, [token]);
+
+  const fetchUserInfo = async () => {
     try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
+      const response = await axios.get(`${API}/auth/me`);
+      setUser(response.data);
+    } catch (error) {
+      console.error('Failed to fetch user info:', error);
+      logout();
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
+  const login = async (username, password) => {
+    try {
+      const response = await axios.post(`${API}/auth/login`, {
+        username,
+        password
+      });
+      
+      const { access_token, user: userData } = response.data;
+      setToken(access_token);
+      setUser(userData);
+      localStorage.setItem('token', access_token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Login failed:', error);
+      return { 
+        success: false, 
+        error: error.response?.data?.detail || 'Login failed' 
+      };
+    }
+  };
+
+  const logout = () => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem('token');
+    delete axios.defaults.headers.common['Authorization'];
+  };
+
+  const value = {
+    user,
+    token,
+    login,
+    logout,
+    loading
+  };
 
   return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-900 mx-auto"></div>
+          <p className="mt-2 text-slate-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  return user ? children : <Navigate to="/login" />;
+};
+
+// Main Layout Component
+const MainLayout = ({ children }) => {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { user } = useAuth();
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <Header 
+        user={user} 
+        sidebarOpen={sidebarOpen} 
+        setSidebarOpen={setSidebarOpen} 
+      />
+      <div className="flex">
+        <Sidebar 
+          isOpen={sidebarOpen} 
+          userRole={user?.role} 
+        />
+        <main className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-16'}`}>
+          <div className="p-6">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 };
 
 function App() {
+  const [initialized, setInitialized] = useState(false);
+
+  useEffect(() => {
+    // Initialize sample data on first load
+    const initializeData = async () => {
+      try {
+        await axios.post(`${API}/init-sample-data`);
+        setInitialized(true);
+      } catch (error) {
+        console.error('Failed to initialize data:', error);
+        setInitialized(true); // Continue anyway
+      }
+    };
+
+    if (!initialized) {
+      initializeData();
+    }
+  }, [initialized]);
+
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <AuthProvider>
+      <Router>
+        <div className="App">
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Dashboard />
+                </MainLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Dashboard />
+                </MainLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/atlas" element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <ForestAtlas />
+                </MainLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/cases" element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <CaseManagement />
+                </MainLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/analytics" element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Analytics />
+                </MainLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin" element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <AdminPanel />
+                </MainLayout>
+              </ProtectedRoute>
+            } />
+          </Routes>
+          <Toaster />
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 
