@@ -158,7 +158,10 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     user = await db.users.find_one({"username": username})
     if user is None:
         raise credentials_exception
-    return User(**user)
+    
+    # Remove MongoDB _id and hashed_password from user data
+    user_data = {k: v for k, v in user.items() if k not in ["_id", "hashed_password"]}
+    return User(**user_data)
 
 # Authentication endpoints
 @api_router.post("/auth/register", response_model=User)
