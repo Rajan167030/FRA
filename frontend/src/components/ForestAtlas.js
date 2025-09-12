@@ -158,7 +158,7 @@ const ForestAtlas = () => {
                   <SelectValue placeholder="Select District" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Districts</SelectItem>
+                  <SelectItem value="all">All Districts</SelectItem>
                   {districts.map(district => (
                     <SelectItem key={district} value={district}>{district}</SelectItem>
                   ))}
