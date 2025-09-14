@@ -1,0 +1,7 @@
+{"level":"info","message":"Initializing blockchain services...","service":"blockchain-service","timestamp":"2025-09-13T22:30:12.174Z"}
+{"level":"info","message":"Blockchain services initialized successfully (mock mode)","service":"blockchain-service","timestamp":"2025-09-13T22:30:12.181Z"}
+{"level":"info","message":"🔗 Blockchain service running on port 8001","service":"blockchain-service","timestamp":"2025-09-13T22:30:12.186Z"}
+{"level":"info","message":"🌐 Network: mychannel","service":"blockchain-service","timestamp":"2025-09-13T22:30:12.188Z"}
+{"level":"info","message":"📄 Smart Contract: fracontract","service":"blockchain-service","timestamp":"2025-09-13T22:30:12.189Z"}
+{"level":"info","message":"✅ Service ready for document verification","service":"blockchain-service","timestamp":"2025-09-13T22:30:12.190Z"}
+{"level":"info","message":"Shutting down blockchain service...","service":"blockchain-service","timestamp":"2025-09-13T22:30:16.262Z"}

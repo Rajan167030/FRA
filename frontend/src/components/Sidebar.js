@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from '../contexts/LanguageContext';
 import { 
   LayoutDashboard, 
   Map, 
@@ -14,33 +15,35 @@ import {
 } from 'lucide-react';
 
 const Sidebar = ({ isOpen, userRole }) => {
+  const { translate: t } = useTranslation();
+  
   const navigationItems = [
     {
-      name: 'Dashboard',
+      name: t('dashboard'),
       href: '/dashboard',
       icon: LayoutDashboard,
       roles: ['admin', 'officer', 'verifier', 'viewer']
     },
     {
-      name: 'Forest Atlas',
+      name: t('forestAtlas'),
       href: '/atlas',
       icon: Map,
       roles: ['admin', 'officer', 'verifier', 'viewer']
     },
     {
-      name: 'Case Management',
+      name: t('caseManagement'),
       href: '/cases',
       icon: FileText,
       roles: ['admin', 'officer', 'verifier']
     },
     {
-      name: 'Analytics',
+      name: t('analytics'),
       href: '/analytics',
       icon: BarChart3,
       roles: ['admin', 'officer']
     },
     {
-      name: 'Admin Panel',
+      name: t('adminPanel'),
       href: '/admin',
       icon: Shield,
       roles: ['admin']
@@ -52,8 +55,11 @@ const Sidebar = ({ isOpen, userRole }) => {
   );
 
   return (
-    <aside className={`bg-blue-900 text-white fixed left-0 top-20 h-full transition-all duration-300 z-40 ${isOpen ? 'w-64' : 'w-16'} shadow-lg`}>
-      <div className="p-4">
+    <aside className={`bg-blue-900 text-white fixed left-0 top-0 h-full transition-all duration-300 z-40 ${isOpen ? 'w-64' : 'w-16'} shadow-lg`}>
+      {/* Header spacing */}
+      <div className="h-[120px]"></div>
+      
+      <div className={`${isOpen ? 'p-4' : 'p-2'} h-[calc(100%-120px)] overflow-y-auto`}>
         {/* Department Info */}
         {isOpen && (
           <div className="mb-6 pb-4 border-b border-blue-800">
@@ -66,7 +72,7 @@ const Sidebar = ({ isOpen, userRole }) => {
         )}
 
         {/* Navigation Menu */}
-        <nav className="space-y-2">
+        <nav className={`${isOpen ? 'space-y-2' : 'space-y-3'}`}>
           <div className={`${isOpen ? 'block' : 'hidden'} mb-4`}>
             <h3 className="text-xs font-semibold text-blue-300 uppercase tracking-wider">
               Navigation
@@ -78,14 +84,14 @@ const Sidebar = ({ isOpen, userRole }) => {
               key={item.name}
               to={item.href}
               className={({ isActive }) =>
-                `flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 group ${
+                `flex items-center ${isOpen ? 'space-x-3 px-3 py-3' : 'px-2 py-4 justify-center'} rounded-lg transition-all duration-200 group ${
                   isActive
                     ? 'bg-orange-500 text-white shadow-lg'
                     : 'text-blue-100 hover:bg-blue-800 hover:text-white'
                 }`
               }
             >
-              <item.icon className={`w-5 h-5 ${isOpen ? '' : 'mx-auto'}`} />
+              <item.icon className={`${isOpen ? 'w-5 h-5' : 'w-7 h-7'} flex-shrink-0`} />
               {isOpen && (
                 <span className="font-medium text-sm">{item.name}</span>
               )}
@@ -121,19 +127,6 @@ const Sidebar = ({ isOpen, userRole }) => {
                 <span className="text-blue-200">Last Sync</span>
                 <span className="text-blue-200">2 min ago</span>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* Footer */}
-        {isOpen && (
-          <div className="absolute bottom-4 left-4 right-4">
-            <div className="text-center">
-              <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-2">
-                <Shield className="w-4 h-4 text-white" />
-              </div>
-              <p className="text-xs text-blue-200">Secured Portal</p>
-              <p className="text-xs text-blue-300">v2.1.0</p>
             </div>
           </div>
         )}
