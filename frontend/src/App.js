@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ThemeProvider } from 'next-themes';
 import './App.css';
 import { authenticate, logout as authLogout, getCurrentUser } from './auth/authentication';
+import LanguageProvider from './contexts/LanguageContext';
 
 // Components
 import { Toaster } from './components/ui/sonner';
@@ -100,13 +101,13 @@ const MainLayout = ({ children }) => {
         sidebarOpen={sidebarOpen} 
         setSidebarOpen={setSidebarOpen} 
       />
-      <div className="flex">
+      <div className="flex pt-[120px]">
         <Sidebar 
           isOpen={sidebarOpen} 
           userRole={user?.role} 
         />
-        <main className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-16'}`}>
-          <div className="p-6">
+        <main className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-16'} min-h-[calc(100vh-120px)]`}>
+          <div className="p-6 h-full">
             {children}
           </div>
         </main>
@@ -117,58 +118,60 @@ const MainLayout = ({ children }) => {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="App">
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/" element={
-              <ProtectedRoute>
-                <MainLayout>
-                  <Dashboard />
-                </MainLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <MainLayout>
-                  <Dashboard />
-                </MainLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/atlas" element={
-              <ProtectedRoute>
-                <MainLayout>
-                  <ForestAtlas />
-                </MainLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/cases" element={
-              <ProtectedRoute>
-                <MainLayout>
-                  <CaseManagement />
-                </MainLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/analytics" element={
-              <ProtectedRoute>
-                <MainLayout>
-                  <Analytics />
-                </MainLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/admin" element={
-              <ProtectedRoute>
-                <MainLayout>
-                  <AdminPanel />
-                </MainLayout>
-              </ProtectedRoute>
-            } />
-          </Routes>
-          <Toaster position="top-right" richColors />
-        </div>
-      </Router>
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Dashboard />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Dashboard />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/atlas" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <ForestAtlas />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/cases" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <CaseManagement />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/analytics" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Analytics />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin" element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <AdminPanel />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+            </Routes>
+            <Toaster position="top-right" richColors />
+          </div>
+        </Router>
+      </AuthProvider>
+    </LanguageProvider>
   );
 }
 

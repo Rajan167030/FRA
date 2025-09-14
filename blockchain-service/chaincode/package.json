@@ -1,0 +1,28 @@
+{
+  "name": "fra-chaincode",
+  "version": "1.0.0",
+  "description": "Forest Rights Atlas Smart Contract for Document Verification",
+  "main": "index.js",
+  "scripts": {
+    "start": "fabric-chaincode-node start",
+    "test": "mocha test/**/*.js"
+  },
+  "dependencies": {
+    "fabric-contract-api": "^2.5.4",
+    "fabric-shim": "^2.5.4"
+  },
+  "devDependencies": {
+    "mocha": "^10.2.0",
+    "chai": "^4.3.7"
+  },
+  "keywords": [
+    "hyperledger",
+    "fabric",
+    "chaincode",
+    "smart-contract",
+    "forest-rights",
+    "document-verification"
+  ],
+  "author": "FRA Team",
+  "license": "MIT"
+}
