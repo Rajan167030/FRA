@@ -1,19 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from './ui/dropdown-menu';
 import { Menu, X, Bell, LogOut, User, Settings, Trees, Globe } from 'lucide-react';
 import { useAuth } from '../App';
+import { useTranslation } from '../contexts/LanguageContext';
 
 const Header = ({ user, sidebarOpen, setSidebarOpen }) => {
   const { logout } = useAuth();
+  const { currentLanguage, changeLanguage, translate: t } = useTranslation();
 
   const handleLogout = () => {
     logout();
   };
 
+  const handleLanguageChange = (e) => {
+    const newLanguage = e.target.value;
+    changeLanguage(newLanguage);
+    console.log('Language changed to:', newLanguage);
+  };
+
   return (
-    <header className="bg-white border-b-4 border-orange-500 shadow-sm">
+    <header className="bg-white border-b-4 border-orange-500 shadow-sm fixed top-0 left-0 right-0 z-50">
       <div className="flex items-center justify-between px-4 py-3">
         {/* Left Section */}
         <div className="flex items-center space-x-4">
@@ -32,7 +40,7 @@ const Header = ({ user, sidebarOpen, setSidebarOpen }) => {
             </div>
             <div>
               <h1 className="text-xl font-bold text-blue-900">FRA-Connect</h1>
-              <p className="text-xs text-slate-600 hidden md:block">Forest Rights Atlas & Decision Support System</p>
+              <p className="text-xs text-slate-600 hidden md:block">{t('systemSubtitle')}</p>
             </div>
           </div>
         </div>
@@ -47,8 +55,12 @@ const Header = ({ user, sidebarOpen, setSidebarOpen }) => {
         <div className="flex items-center space-x-3">
           {/* Language Selector */}
           <div className="hidden md:flex items-center space-x-1 text-sm">
-            <span className="text-slate-600">Language:</span>
-            <select className="bg-transparent border-none text-blue-900 font-medium cursor-pointer">
+            <span className="text-slate-600">{t('language')}:</span>
+            <select 
+              value={currentLanguage}
+              onChange={handleLanguageChange}
+              className="bg-transparent border-none text-blue-900 font-medium cursor-pointer focus:outline-none"
+            >
               <option value="en">English</option>
               <option value="hi">हिंदी</option>
               <option value="tribal">Tribal Languages</option>
@@ -90,12 +102,12 @@ const Header = ({ user, sidebarOpen, setSidebarOpen }) => {
               
               <DropdownMenuItem className="cursor-pointer">
                 <User className="w-4 h-4 mr-2" />
-                Profile
+                {t('profile')}
               </DropdownMenuItem>
               
               <DropdownMenuItem className="cursor-pointer">
                 <Settings className="w-4 h-4 mr-2" />
-                Settings
+                {t('settings')}
               </DropdownMenuItem>
               
               <DropdownMenuSeparator />
@@ -105,7 +117,7 @@ const Header = ({ user, sidebarOpen, setSidebarOpen }) => {
                 onClick={handleLogout}
               >
                 <LogOut className="w-4 h-4 mr-2" />
-                Logout
+                {t('logout')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
